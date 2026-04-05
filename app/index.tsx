@@ -7,11 +7,11 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useWants } from "../context/WantContext";
+import { useWants } from "./context/WantContext";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { wants } = useWants();
+  const { wants, isLoading } = useWants();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -38,7 +38,11 @@ export default function HomeScreen() {
 
         <Text style={styles.sectionTitle}>Your Wants</Text>
 
-        {wants.length === 0 ? (
+        {isLoading ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>Loading your wants...</Text>
+          </View>
+        ) : wants.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyText}>No wants yet. Add your first one.</Text>
           </View>

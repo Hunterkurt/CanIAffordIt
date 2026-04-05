@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type Want = {
   id: string;
@@ -10,12 +17,52 @@ export type Want = {
 type WantContextType = {
   wants: Want[];
   addWant: (want: Omit<Want, "id">) => void;
+  isLoading: boolean;
 };
 
 const WantContext = createContext<WantContextType | undefined>(undefined);
 
+const WANTS_STORAGE_KEY = "user_wants";
+
 export function WantProvider({ children }: { children: ReactNode }) {
   const [wants, setWants] = useState<Want[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadWants = async () => {
+      try {
+        const storedWants = await AsyncStorage.getItem(WANTS_STORAGE_KEY);
+
+        if (storedWants) {
+          const parsedWants: Want[] = JSON.parse(storedWants);
+          setWants(parsedWants);
+        }
+      } catch (error) {
+        console.error("Failed to load wants:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadWants();
+  }, []);
+
+  useEffect(() => {
+    const saveWants = async () => {
+      try {
+        if (!isLoading) {
+          await AsyncStorage.setItem(
+            WANTS_STORAGE_KEY,
+            JSON.stringify(wants)
+          );
+        }
+      } catch (error) {
+        console.error("Failed to save wants:", error);
+      }
+    };
+
+    saveWants();
+  }, [wants, isLoading]);
 
   const addWant = (want: Omit<Want, "id">) => {
     const newWant: Want = {
@@ -27,7 +74,7 @@ export function WantProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <WantContext.Provider value={{ wants, addWant }}>
+    <WantContext.Provider value={{ wants, addWant, isLoading }}>
       {children}
     </WantContext.Provider>
   );

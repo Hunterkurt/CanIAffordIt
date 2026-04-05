@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useWants } from "../context/WantContext";
+import { useWants } from "./context/WantContext";
 
 export default function AddWantScreen() {
   const router = useRouter();
