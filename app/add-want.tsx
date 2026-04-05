@@ -9,9 +9,11 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useWants } from "../context/WantContext";
 
 export default function AddWantScreen() {
   const router = useRouter();
+  const { addWant } = useWants();
 
   const [name, setName] = useState("");
   const [goal, setGoal] = useState("");
@@ -23,10 +25,15 @@ export default function AddWantScreen() {
       return;
     }
 
-    Alert.alert(
-      "Saved for now",
-      `Want: ${name}\nGoal: ${goal || "0"}\nSaved: ${saved || "0"}`
-    );
+    addWant({
+      name: name.trim(),
+      goal: Number(goal) || 0,
+      saved: Number(saved) || 0,
+    });
+
+    setName("");
+    setGoal("");
+    setSaved("");
 
     router.back();
   };
