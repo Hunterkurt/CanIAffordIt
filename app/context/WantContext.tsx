@@ -17,6 +17,9 @@ export type Want = {
 type WantContextType = {
   wants: Want[];
   addWant: (want: Omit<Want, "id">) => void;
+  deleteWant: (id: string) => void;
+  updateWant: (updatedWant: Want) => void;
+  getWantById: (id: string) => Want | undefined;
   isLoading: boolean;
 };
 
@@ -73,8 +76,35 @@ export function WantProvider({ children }: { children: ReactNode }) {
     setWants((currentWants) => [newWant, ...currentWants]);
   };
 
+  const deleteWant = (id: string) => {
+    setWants((currentWants) =>
+      currentWants.filter((want) => want.id !== id)
+    );
+  };
+
+  const updateWant = (updatedWant: Want) => {
+    setWants((currentWants) =>
+      currentWants.map((want) =>
+        want.id === updatedWant.id ? updatedWant : want
+      )
+    );
+  };
+
+  const getWantById = (id: string) => {
+    return wants.find((want) => want.id === id);
+  };
+
   return (
-    <WantContext.Provider value={{ wants, addWant, isLoading }}>
+    <WantContext.Provider
+      value={{
+        wants,
+        addWant,
+        deleteWant,
+        updateWant,
+        getWantById,
+        isLoading,
+      }}
+    >
       {children}
     </WantContext.Provider>
   );

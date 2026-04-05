@@ -5,13 +5,29 @@ import {
   Pressable,
   SafeAreaView,
   FlatList,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useWants } from "./context/WantContext";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { wants, isLoading } = useWants();
+  const { wants, isLoading, deleteWant } = useWants();
+
+  const handleDelete = (id: string, name: string) => {
+    Alert.alert(
+      "Delete want",
+      `Are you sure you want to delete "${name}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteWant(id),
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -64,6 +80,27 @@ export default function HomeScreen() {
 
                   <View style={styles.progressBar}>
                     <View style={[styles.progressFill, { width: `${progress}%` }]} />
+                  </View>
+
+                  <View style={styles.actionRow}>
+                    <Pressable
+                      style={styles.editButton}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/edit-want",
+                          params: { id: item.id },
+                        })
+                      }
+                    >
+                      <Text style={styles.editButtonText}>Edit</Text>
+                    </Pressable>
+
+                    <Pressable
+                      style={styles.deleteButton}
+                      onPress={() => handleDelete(item.id, item.name)}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </Pressable>
                   </View>
                 </View>
               );
@@ -163,10 +200,43 @@ const styles = StyleSheet.create({
     backgroundColor: "#252b3d",
     borderRadius: 999,
     overflow: "hidden",
+    marginBottom: 14,
   },
   progressFill: {
     height: "100%",
     backgroundColor: "#7c5cff",
     borderRadius: 999,
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: "#1a1f2d",
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#2a3144",
+  },
+  editButtonText: {
+    color: "#d8dcef",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  deleteButton: {
+    flex: 1,
+    backgroundColor: "#2a1418",
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#4d242b",
+  },
+  deleteButtonText: {
+    color: "#ffb8c2",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });
